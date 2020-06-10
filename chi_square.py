@@ -1,14 +1,73 @@
 import numpy as np
+import pynj3 as pj
+
+
+def racah_w(a, b, c, d, e, f):
+    return pow((-1), int(a+b+c+d))*pj.wigner6j(int(2*a),int(2*b),int(2*e),int(2*d),int(2*c),int(2*f))
+
+def F(k, jf, l1, l2, ji):
+    cg = pj.clebsch_gordon(l1, 1, l2, -1, k, 0)
+    if cg == 0:
+        return 0
+
+    w = racah_w(ji, ji, l1, l2, k, jf)
+    if w == 0:
+        return 0
+
+    return pow((-1), (jf-ji-1))*(pow((2*li+1)*(2*l2+1)*(2*ji+1),(1.0/2.0)))*cg*w
+    # Reference: Tables of coefficients for angular distribution of gamma rays from aligned nuclei
+	# T. Yamazaki. Nuclear Data A, 3(1):1?23, 1967.
+
+
+def A(k, ji, jf, l1, l2, delta):
+    f1 = F(k, ji, l1, l1, jf)
+    f2 = F(k, ji, l1, l2, jf)
+    f2 = F(k, ji, l2, l2, jf)
+    return (1 / (1 + pow(delta, 2))) * (f1 + 2 * delta * f2 + pow(delta, 2) * f3)
+
+
+def B(k, ji, jf, l1, l2, delta):
+    f1 = F(k, ji, l1, l1, jf)
+    f2 = F(k, ji, l1, l2, jf)
+    f2 = F(k, ji, l2, l2, jf)
+    return (1 / (1 + pow(delta, 2))) * (f1 + pow((-1), (l1 + l2)) * 2 * delta * f2 + pow(delta, 2) * f3)
+
+
+def calculate_a2(j1, j2, j3, l1_lowest_allowed_spin, l1_mixing_spin, l2_lowest_allowed_spin, l2_mixing_spin, delta_1, delta_2):
+    return B(2, j2, j1, l1_lowest_allowed_spin, l1_mixing_spin, delta_1) * A(2, j3, j2, l2_lowest_allowed_spin, l2_mixing_spin, delta2)
+
+
+def calculate_a4(j1, j2, j3, l1_lowest_allowed_spin, l1_mixing_spin, l2_lowest_allowed_spin, l2_mixing_spin, delta_1, delta_2):
+    return B(4, j2, j1, l1_lowest_allowed_spin, l1_mixing_spin, delta_1) * A(4, j3, j2, l2_lowest_allowed_spin, l2_mixing_spin, delta2)
 
 
 def get_chi_square(data, data_yerror, fit_values):
-    # compute the mean and the chi^2/dof
+    '''Calculates the chi squared for input data arrays
+
+    Inputs:
+        data Array of data points
+        data_yerror Array of the yerrors for data
+        fit_values Array of fitted function values
+
+    Returns:
+        chi2 Chi-squared values
+    '''
     z = (data - fit_values) / data_yerror
     chi2 = np.sum(z ** 2)
     return chi2
 
 
 def get_reduced_chi_square(data, data_yerror, fit_values):
+    '''Calculates the reduced chi squared for input data arrays
+
+    Inputs:
+        data Array of data points
+        data_yerror Array of the yerrors for data
+        fit_values Array of fitted function values
+
+    Returns:
+        rcs Reduced chi2
+    '''
     chi2 = get_chi_square(data, data_yerror, fit_values)
     N = len(data) - 1
     print(N)
@@ -99,7 +158,8 @@ def mixing_ratio_chi_square_minimization(j_high, j_mid, j_low):
         mixing_angle_min_2 = 0
         steps_2 = 1
 
-    print(f'Sampling {steps_1} steps for mixing ratio one and {steps_2} for mixing ratio two')
+    print(
+        f'Sampling {steps_1} steps for mixing ratio one and {steps_2} for mixing ratio two')
 
     for i in range(steps_1):
         mix_angle_1 = mixing_angle_min_1 + i * step_size_1

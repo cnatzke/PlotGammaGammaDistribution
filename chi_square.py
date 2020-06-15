@@ -31,7 +31,7 @@ def get_reduced_chi_square(data, data_yerror, fit_values):
     '''
     chi2 = get_chi_square(data, data_yerror, fit_values)
     N = len(data) - 1
-    print(N)
+    #print(N)
     return chi2 / N
 
 
@@ -74,12 +74,12 @@ def mixing_ratio_chi_square_minimization(j_high, j_mid, j_low):
     if l1_lowest_allowed_spin == abs(j_high + j_mid) / 2:
         print(
             f':::WARNING::: Only one angular momentum allowed for the high->middle ({j_high}->{j_mid}) transition.')
-        print('The mixing ratio (delta1) will be fixed at zero')
+        print('The mixing ratio (delta1) will be fixed at zero\n')
         l1_mixing_spin = l1_lowest_allowed_spin
     if l2_lowest_allowed_spin == abs(j_mid + j_low) / 2:
         print(
             f':::WARNING::: Only one angular momentum allowed for the middle->low ({j_mid}->{j_low}) transition.')
-        print('The mixing ratio (delta2) will be fixed at zero')
+        print('The mixing ratio (delta2) will be fixed at zero\n')
         l2_mixing_spin = l2_lowest_allowed_spin
 
     # -------------------------------------------------------------------

@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 from scipy.special import legendre
 from scipy.optimize import curve_fit
-from scipy.stats import chisquare
 
 import chi_square as cs
 
@@ -32,26 +31,36 @@ df.to_csv('./event_mixed_counts.dat')
 
 # plt.show()
 
-
 #------------------------------------------------------------
 # CURVE FITTING
 #------------------------------------------------------------
-popt, pcov = curve_fit(gamma_gamma_dist_func,
-                       df['Cosine_Angle'], df['Normalized_Area'])
-perr = np.sqrt(np.diag(pcov))
+
+gmodel = Model(gamma_gamma_dist_func)
+params = Parameters()
+params.add('a_0', value = 1.0)
+params.add('a_2', value = 0.5)
+params.add('a_4', value = 0.5)
+#params.add('a_4', value = 0.5, vary=False) #fixed parameter
+
+result = gmodel.fit(df['Normalized_Area'], params, x=df['Cosine_Angle'])
+print('---------------------------------')
+print('FIT RESULTS')
+print('---------------------------------')
+print(result.fit_report())
+print('---------------------------------')
 
 # calculating residuals (val - fit value)
-df['Fit_Values'] = gamma_gamma_dist_func(df['Cosine_Angle'], *popt)
+df['Fit_Values'] = result.eval(x=df['Cosine_Angle'])
 df['Residuals'] = df['Normalized_Area'] - df['Fit_Values']
 chi2 = cs.get_chi_square(df['Normalized_Area'], df['Normalized_Area_Err'], df['Fit_Values'])
 chi2_ndf = cs.get_reduced_chi_square(df['Normalized_Area'], df['Normalized_Area_Err'], df['Fit_Values'])
 
-print(f'Fitted Parameters:\n {popt}')
-print(f'Covariance Matrix:\n {pcov}')
-print(f'Errors in paramters: {perr}')
-print(f'Chi2: {chi2}')
-print(f'Chi2/NDF: {chi2_ndf}')
-print(f'Residuals: \n {df.head()}')
+a2_fitted = result.params['a_2'].value
+a2_err_fitted = result.params['a_2'].stderr
+a4_fitted = result.params['a_4'].value
+a4_err_fitted = result.params['a_4'].stderr
+if verbose > 0:
+    print(f'Residuals: \n {df.head()}')
 
 #------------------------------------------------------------
 # PLOTTING
@@ -110,5 +119,3 @@ plt.pause(1)  # needed to show plot
 
 input("Press any key to continue ...")
 plt.close()
-
-test = cs.mixing_ratio_chi_square_minimization(4, 2, 0)

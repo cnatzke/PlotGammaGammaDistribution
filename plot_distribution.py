@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rc
 from scipy.special import legendre
-from scipy.optimize import curve_fit
+from lmfit import Model, Parameters
 
 import chi_square as cs
 
@@ -17,6 +17,8 @@ def gamma_gamma_dist_func(x, a_0, a_2, a_4):
 
 #------------------------------------------------------------
 
+verbose = 0;
+
 df = pd.read_csv("./207Bi/fits.txt", header=0, names=[
                  "Index", "Angle", "Corr_Area", "Corr_Area_Err", "Uncorr_Area", "Uncorr_Area_Err"], skiprows=1)
 # print(df.head())
@@ -26,7 +28,8 @@ df["Normalized_Area"] = df['Corr_Area'] / df['Uncorr_Area']
 df["Normalized_Area_Err"] = df['Normalized_Area'] * \
     np.sqrt((df['Corr_Area_Err'] / df['Corr_Area']) ** 2 +
             (df['Uncorr_Area_Err'] / df['Uncorr_Area']) ** 2)
-print(f'Normalized counts: \n {df}')
+if verbose > 0:
+    print(f'Normalized counts: \n {df}')
 df.to_csv('./event_mixed_counts.dat')
 
 # plt.show()
@@ -92,8 +95,8 @@ axes[0].set_title(
 axes[0].set_ylabel("Normalized Counts", **axis_fonty)
 
 # text
-a2_params = f'$a_2$ = {popt[1]:.6f}$\pm${perr[1]:.6f}'
-a4_params = f'$a_4$ = {popt[2]:.6f}$\pm${perr[2]:.6f}'
+a2_params = f'$a_2$ = {a2_fitted:.6f}$\pm${a2_err_fitted:.6f}'
+a4_params = f'$a_4$ = {a4_fitted:.6f}$\pm${a4_err_fitted:.6f}'
 chi2_params = f'$\chi^2/NDF$ = {chi2_ndf:.2f}'
 
 axes[0].text(0.5, 0.9, a2_params, transform=axes[0].transAxes, **text_font)

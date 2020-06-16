@@ -4,18 +4,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rc
-from scipy.special import legendre
 from lmfit import Model, Parameters
 
+import physics_functions as physics
 import chi_square as cs
-
-#------------------------------------------------------------
-def gamma_gamma_dist_func(x, a_0, a_2, a_4):
-    p_2 = legendre(2)
-    p_4 = legendre(4)
-    return a_0 * (1 + a_2 * p_2(x) + a_4 * p_4(x))
-
-#------------------------------------------------------------
 
 verbose = 0;
 
@@ -38,7 +30,7 @@ df.to_csv('./event_mixed_counts.dat')
 # CURVE FITTING
 #------------------------------------------------------------
 
-gmodel = Model(gamma_gamma_dist_func)
+gmodel = Model(physics.gamma_gamma_dist_func)
 params = Parameters()
 params.add('a_0', value = 1.0)
 params.add('a_2', value = 0.5)

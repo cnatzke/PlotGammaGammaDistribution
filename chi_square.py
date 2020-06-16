@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import physics_functions as physics
 
 
@@ -35,10 +36,11 @@ def get_reduced_chi_square(data, data_yerror, fit_values):
     return chi2 / N
 
 
-def mixing_ratio_chi_square_minimization(j_high, j_mid, j_low):
-    '''Samples allowed mixing ratios and returns the mixing ratio with the smallest chi2 values
+def sample_a2_a4_space(j_high, j_mid, j_low):
+    '''Samples allowed mixing ratios for fitting
 
     Returns:
+        mix_samples PANDAS dataframe containing sampled values
 
     Inputs:
         j_high Spin of the highest level
@@ -122,6 +124,8 @@ def mixing_ratio_chi_square_minimization(j_high, j_mid, j_low):
     print(
         f'Sampling {steps_1} steps for mixing ratio one and {steps_2} for mixing ratio two')
 
+    sampled_values = []
+
     for i in range(steps_1):
         mix_angle_1 = mixing_angle_min_1 + i * step_size_1
         delta_1 = np.tan(mix_angle_1)
@@ -141,4 +145,9 @@ def mixing_ratio_chi_square_minimization(j_high, j_mid, j_low):
             if verbose:
                 print(f'Calculated a2: {a2:.6f} a4: {a4:.6f}')
 
-    return 1
+            sample_value = [mix_angle_1, mix_angle_2, a2, a4]
+            sampled_values.append(sample_value)
+
+    columns = ['mixing_angle_1', 'mixing_angle_2', 'a2', 'a4']
+    df = pd.DataFrame(sampled_values, columns=columns)
+    return df

@@ -1,5 +1,6 @@
 #!/home/cnatzke/anaconda3/envs/py3/bin/python
 
+import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,7 +14,8 @@ import physics_functions as physics
 def test_chi2_minimization():
     verbose = 0
 
-    df = pd.read_csv("./207Bi/fits.txt", header=0, names=[
+    print(f'Opening file: {sys.argv[1]}')
+    df = pd.read_csv(sys.argv[1], header=0, names=[
                      "Index", "Angle", "Corr_Area", "Corr_Area_Err", "Uncorr_Area", "Uncorr_Area_Err"], skiprows=1)
     # print(df.head())
 
@@ -61,13 +63,16 @@ def test_chi2_minimization():
     if verbose > 0:
         print(f'Residuals: \n {df.head()}')
 
-    test_values = cs.minimize_mixing_chi2(df, 7, 5, 1)
+    print("Starting chi2 minimization ... ")
+    # Arguments should be double the physics value (e.g 7/2->7, 2->4, etc)
+    chi2_df = cs.minimize_mixing_chi2(df, 8, 4, 0)
+    print("Starting chi2 minimization ... [DONE]")
 
-    print(test_values)
+    output_csv_name = 'fitted_chi2_values.dat'
+    print(f'Writing data to output file: {output_csv_name}')
 
-    fig, ax = plt.subplots()
-    ax.plot(test_values['mixing_angle_1'], test_values['mixing_angle_2'])
-    plt.show()
+    chi2_df.to_csv('fitted_chi2_values.dat', columns=['mixing_angle_1', 'mixing_angle_2', 'rcs'], sep='\t', index=False)
+
 
 
 def main():

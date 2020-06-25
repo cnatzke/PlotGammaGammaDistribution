@@ -28,6 +28,7 @@ def test_chi2_minimization():
         print(f'Normalized counts: \n {df}')
     df.to_csv('./event_mixed_counts.dat')
 
+    '''
     # plt.show()
 
     # ------------------------------------------------------------
@@ -62,13 +63,15 @@ def test_chi2_minimization():
     a4_err_fitted = result.params['a_4'].stderr
     if verbose > 0:
         print(f'Residuals: \n {df.head()}')
+        '''
 
     print("Starting chi2 minimization ... ")
     # Arguments should be double the physics value (e.g 7/2->7, 2->4, etc)
-    j1 = 2
-    j2 = 2
-    j3 = 0
-    chi2_df = cs.minimize_mixing_chi2(df, 2 * j1, 2 * j2, 2 * j3)
+    j1 = 7/2
+    j2 = 5/2
+    j3 = 1/2
+    delta_2_user = 0
+    chi2_df = cs.minimize_mixing_chi2(df, 2 * j1, 2 * j2, 2 * j3, fix_a4=True, delta_2=delta_2_user)
     print("Starting chi2 minimization ... [DONE]")
 
     output_csv_name = f'chi2_values_{j1}_{j2}_{j3}.dat'

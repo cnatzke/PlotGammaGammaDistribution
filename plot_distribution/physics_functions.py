@@ -3,10 +3,12 @@ import pandas as pd
 from scipy.special import legendre
 import sympy.physics.wigner as wg
 
+
 def gamma_gamma_dist_func(x, a_0, a_2, a_4):
     p_2 = legendre(2)
     p_4 = legendre(4)
     return a_0 * (1 + a_2 * p_2(x) + a_4 * p_4(x))
+
 
 def clebsch_gordan(j1, m1, j2, m2, j, m):
     # safety checks
@@ -126,7 +128,7 @@ def calculate_a4(j1, j2, j3, l1_lowest_allowed_spin, l1_mixing_spin, l2_lowest_a
     return B(4, j2, j1, l1_lowest_allowed_spin, l1_mixing_spin, delta_1) * A(4, j3, j2, l2_lowest_allowed_spin, l2_mixing_spin, delta_2)
 
 
-def sample_a2_a4_space(j_high, j_mid, j_low):
+def sample_a2_a4_space(j_high, j_mid, j_low, fix_delta2=False, delta2_fixed=-1):
     '''Samples allowed mixing ratios for fitting
 
     Returns:
@@ -136,13 +138,18 @@ def sample_a2_a4_space(j_high, j_mid, j_low):
         j_high Spin of the highest level
         j_mid Spin of the middle level
         j_low Spin of the lowest level
+        fix_delta2 Fix mixing ratio of second transition? (optional)
+        delta2_fixed Fixed mixing ratio of second transition (optional)
     '''
-
     # set to True for more output
     verbose = False
 
     if verbose:
         print("Staring chi2 minimization of mixing ratio")
+
+    if fix_delta2 and delta2_fixed == -1:
+        print(f'ERROR: To fix delta two user must specify delta2')
+        df_empty = pd.DataFrame({'A': []})
 
     j1 = 0.5 * j_high
     j2 = 0.5 * j_mid
@@ -193,7 +200,7 @@ def sample_a2_a4_space(j_high, j_mid, j_low):
 
     mixing_angle_min_1 = -np.pi / 2
     mixing_angle_max_1 = np.pi / 2
-    steps_1 = 100
+    steps_1 = 1000
     step_size_1 = (mixing_angle_max_1 - mixing_angle_min_1) / steps_1
     # Mixing for middle-low transition
     # To constrain to zero, set mixing_angle_min_2 to 0, mixing_angle_min_2 to 1,
@@ -211,8 +218,13 @@ def sample_a2_a4_space(j_high, j_mid, j_low):
         mixing_angle_min_2 = 0
         steps_2 = 1
 
-    print(
-        f'Sampling {steps_1} steps for mixing ratio one and {steps_2} for mixing ratio two')
+    if fix_delta2:
+        print(
+            f'Sampling {steps_1} steps for mixing ratio one and fixing mixing ratio two as: {delta2_fixed}')
+        steps_2 = 1
+    else:
+        print(
+            f'Sampling {steps_1} steps for mixing ratio one and {steps_2} for mixing ratio two')
 
     sampled_values = []
 
@@ -223,15 +235,19 @@ def sample_a2_a4_space(j_high, j_mid, j_low):
             print(f'Mixing angle one: {mix_angle_1} Delta one: {delta_1}')
 
         for j in range(steps_2):
-            mix_angle_2 = mixing_angle_min_2 + j * step_size_2
+            if fix_delta2:
+                mix_angle_2 = np.arctan(delta2_fixed)
+            else:
+                mix_angle_2 = mixing_angle_min_2 + j * step_size_2
+
             delta_2 = np.tan(mix_angle_2)
             if verbose:
                 print(f'Mixing angle two: {mix_angle_2} Delta two: {delta_2}')
 
             a2 = calculate_a2(j1, j2, j3, l1_lowest_allowed_spin, l1_mixing_spin,
-                                      l2_lowest_allowed_spin, l2_mixing_spin, delta_1, delta_2)
+                              l2_lowest_allowed_spin, l2_mixing_spin, delta_1, delta_2)
             a4 = calculate_a4(j1, j2, j3, l1_lowest_allowed_spin, l1_mixing_spin,
-                                      l2_lowest_allowed_spin, l2_mixing_spin, delta_1, delta_2)
+                              l2_lowest_allowed_spin, l2_mixing_spin, delta_1, delta_2)
             if verbose:
                 print(f'Calculated a2: {a2:.6f} a4: {a4:.6f}')
 

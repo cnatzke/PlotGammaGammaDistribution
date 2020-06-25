@@ -36,10 +36,10 @@ def get_reduced_chi_square(data, data_yerror, fit_values):
     #print(N)
     return chi2 / N
 
-def minimize_mixing_chi2(data, j_high, j_mid, j_low, verbose=0):
+def minimize_mixing_chi2(data, j_high, j_mid, j_low, verbose=0, fix_a4=False, delta_2=-1):
 
     # Sample allowed a2/a4 space
-    df = physics.sample_a2_a4_space(j_high, j_mid, j_low)
+    df = physics.sample_a2_a4_space(j_high, j_mid, j_low, fix_a4, delta_2)
 
     #------------------------------------------------------------
     # CURVE FITTING

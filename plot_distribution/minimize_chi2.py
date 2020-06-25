@@ -65,14 +65,17 @@ def test_chi2_minimization():
 
     print("Starting chi2 minimization ... ")
     # Arguments should be double the physics value (e.g 7/2->7, 2->4, etc)
-    chi2_df = cs.minimize_mixing_chi2(df, 8, 4, 0)
+    j1 = 2
+    j2 = 2
+    j3 = 0
+    chi2_df = cs.minimize_mixing_chi2(df, 2 * j1, 2 * j2, 2 * j3)
     print("Starting chi2 minimization ... [DONE]")
 
-    output_csv_name = 'fitted_chi2_values.dat'
+    output_csv_name = f'chi2_values_{j1}_{j2}_{j3}.dat'
     print(f'Writing data to output file: {output_csv_name}')
 
-    chi2_df.to_csv('fitted_chi2_values.dat', columns=['mixing_angle_1', 'mixing_angle_2', 'rcs'], sep='\t', index=False)
-
+    chi2_df.to_csv(output_csv_name, columns=[
+                   'mixing_angle_1', 'mixing_angle_2', 'rcs'], sep='\t', index=False)
 
 
 def main():

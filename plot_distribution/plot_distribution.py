@@ -40,6 +40,7 @@ def plot_distribution():
     params.add('a_0', value=1.0)
     params.add('a_2', value=0.5)
     params.add('a_4', value=0.5)
+    ndf_fit = 3 # Fitting 3 parameters
     # params.add('a_4', value = 0.5, vary=False) #fixed parameter
 
     result = gmodel.fit(df['Normalized_Area'], params, x=df['Cosine_Angle'])
@@ -55,7 +56,7 @@ def plot_distribution():
     chi2 = cs.get_chi_square(df['Normalized_Area'],
                              df['Normalized_Area_Err'], df['Fit_Values'])
     chi2_ndf = cs.get_reduced_chi_square(
-        df['Normalized_Area'], df['Normalized_Area_Err'], df['Fit_Values'])
+        df['Normalized_Area'], df['Normalized_Area_Err'], df['Fit_Values'], ndf_fit) 
 
     a2_fitted = result.params['a_2'].value
     a2_err_fitted = result.params['a_2'].stderr

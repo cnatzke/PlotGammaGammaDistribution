@@ -20,7 +20,7 @@ def get_chi_square(data, data_yerror, fit_values):
     return chi2
 
 
-def get_reduced_chi_square(data, data_yerror, fit_values):
+def get_reduced_chi_square(data, data_yerror, fit_values, ndf):
     '''Calculates the reduced chi squared for input data arrays
 
     Inputs:
@@ -32,7 +32,7 @@ def get_reduced_chi_square(data, data_yerror, fit_values):
         rcs Reduced chi2
     '''
     chi2 = get_chi_square(data, data_yerror, fit_values)
-    N = len(data) - 1
+    N = len(data) - (1 + ndf)
     #print(N)
     return chi2 / N
 
@@ -47,6 +47,7 @@ def minimize_mixing_chi2(data, j_high, j_mid, j_low, verbose=0, fix_a4=False, de
     gmodel = Model(physics.gamma_gamma_dist_func)
     params = Parameters()
     params.add('a_0', value = 1.0)
+    ndf_fit = 1 # NDF = 1 because we are fixing a2 and a4
 
     # loop over all values of a2 & a4 to find the minimum chi2
     rcs_list = []
@@ -67,7 +68,7 @@ def minimize_mixing_chi2(data, j_high, j_mid, j_low, verbose=0, fix_a4=False, de
         data['Fit_Values'] = result.eval(x=data['Cosine_Angle'])
         data['Residuals'] = data['Normalized_Area'] - data['Fit_Values']
         chi2 = get_chi_square(data['Normalized_Area'], data['Normalized_Area_Err'], data['Fit_Values'])
-        chi2_ndf = get_reduced_chi_square(data['Normalized_Area'], data['Normalized_Area_Err'], data['Fit_Values'])
+        chi2_ndf = get_reduced_chi_square(data['Normalized_Area'], data['Normalized_Area_Err'], data['Fit_Values'], ndf_fit)
 
         rcs_list.append(chi2_ndf)
 

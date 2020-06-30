@@ -11,7 +11,7 @@ import chi_square as cs
 import physics_functions as physics
 
 
-def test_chi2_minimization():
+def minimize_chi2():
     verbose = 0
 
     print(f'Opening file: {sys.argv[1]}')
@@ -27,43 +27,6 @@ def test_chi2_minimization():
     if verbose > 0:
         print(f'Normalized counts: \n {df}')
     df.to_csv('./event_mixed_counts.dat')
-
-    '''
-    # plt.show()
-
-    # ------------------------------------------------------------
-    # CURVE FITTING
-    # ------------------------------------------------------------
-
-    gmodel = Model(physics.gamma_gamma_dist_func)
-    params = Parameters()
-    params.add('a_0', value=1.0)
-    params.add('a_2', value=0.5)
-    params.add('a_4', value=0.5)
-    # params.add('a_4', value = 0.5, vary=False) #fixed parameter
-
-    result = gmodel.fit(df['Normalized_Area'], params, x=df['Cosine_Angle'])
-    print('---------------------------------')
-    print('FIT RESULTS')
-    print('---------------------------------')
-    print(result.fit_report())
-    print('---------------------------------')
-
-    # calculating residuals (val - fit value)
-    df['Fit_Values'] = result.eval(x=df['Cosine_Angle'])
-    df['Residuals'] = df['Normalized_Area'] - df['Fit_Values']
-    chi2 = cs.get_chi_square(df['Normalized_Area'],
-                             df['Normalized_Area_Err'], df['Fit_Values'])
-    chi2_ndf = cs.get_reduced_chi_square(
-        df['Normalized_Area'], df['Normalized_Area_Err'], df['Fit_Values'])
-
-    a2_fitted = result.params['a_2'].value
-    a2_err_fitted = result.params['a_2'].stderr
-    a4_fitted = result.params['a_4'].value
-    a4_err_fitted = result.params['a_4'].stderr
-    if verbose > 0:
-        print(f'Residuals: \n {df.head()}')
-        '''
 
     print("Starting chi2 minimization ... ")
     # Arguments should be double the physics value (e.g 7/2->7, 2->4, etc)
@@ -82,7 +45,7 @@ def test_chi2_minimization():
 
 
 def main():
-    test_chi2_minimization()
+    minimize_chi2()
 
 
 if __name__ == "__main__":
